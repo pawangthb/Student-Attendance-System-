@@ -91,7 +91,7 @@ function App() {
 
   const fetchStudents = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/students');
+      const res = await axios.get('https://student-attendance-system-lk4i.onrender.com');
       setStudents(res.data);
     } catch (err) {
       console.error("Error fetching students:", err);
@@ -113,7 +113,7 @@ function App() {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/students', { name, rollNo });
+      await axios.post('https://student-attendance-system-lk4i.onrender.com', { name, rollNo });
       setName("");
       setRollNo("");
       fetchStudents();
@@ -124,7 +124,7 @@ function App() {
 
   const toggleAttendance = async (id, currentStatus) => {
     try {
-      await axios.put(`http://localhost:5000/api/students/${id}/attendance`, {
+      await axios.put(`https://student-attendance-system-lk4i.onrender.com`, {
         isPresent: !currentStatus
       });
       fetchStudents();
@@ -136,7 +136,7 @@ function App() {
   const deleteStudent = async (id) => {
     if (window.confirm("Are you sure you want to delete this student?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/students/${id}`);
+        await axios.delete(`https://student-attendance-system-lk4i.onrender.com`);
         fetchStudents();
       } catch (err) {
         console.error("Error deleting:", err);
