@@ -91,7 +91,7 @@ function App() {
 
   const fetchStudents = async () => {
     try {
-      const res = await axios.get('https://student-attendance-system-lk4i.onrender.com');
+      const res = await axios.get('https://student-attendance-system-lk4i.onrender.com/api/students');
       setStudents(res.data);
     } catch (err) {
       console.error("Error fetching students:", err);
@@ -113,7 +113,7 @@ function App() {
     }
 
     try {
-      await axios.post('https://student-attendance-system-lk4i.onrender.com', { name, rollNo });
+      await axios.post('https://student-attendance-system-lk4i.onrender.com/api/students', { name, rollNo });
       setName("");
       setRollNo("");
       fetchStudents();
@@ -124,7 +124,7 @@ function App() {
 
   const toggleAttendance = async (id, currentStatus) => {
     try {
-      await axios.put(`https://student-attendance-system-lk4i.onrender.com`, {
+      await axios.put(`https://student-attendance-system-lk4i.onrender.com/api/students/${id}/attendance`, {
         isPresent: !currentStatus
       });
       fetchStudents();
@@ -136,7 +136,7 @@ function App() {
   const deleteStudent = async (id) => {
     if (window.confirm("Are you sure you want to delete this student?")) {
       try {
-        await axios.delete(`https://student-attendance-system-lk4i.onrender.com`);
+        await axios.delete(`https://student-attendance-system-lk4i.onrender.com/api/students/${id}`);
         fetchStudents();
       } catch (err) {
         console.error("Error deleting:", err);
@@ -148,10 +148,8 @@ function App() {
   // --- Sorting Logic ---
   const handleSort = (field) => {
     if (sortField === field) {
-      // Same field clicked → toggle order
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
-      // New field clicked → set field, default asc
       setSortField(field);
       setSortOrder("asc");
     }
@@ -162,14 +160,12 @@ function App() {
       let valA = a[sortField];
       let valB = b[sortField];
 
-      // Roll No is a number — compare as integer
       if (sortField === "rollNo") {
         valA = parseInt(valA);
         valB = parseInt(valB);
         return sortOrder === "asc" ? valA - valB : valB - valA;
       }
 
-      // Name — compare as string
       valA = valA?.toLowerCase();
       valB = valB?.toLowerCase();
       if (valA < valB) return sortOrder === "asc" ? -1 : 1;
@@ -180,7 +176,6 @@ function App() {
 
   const sortedStudents = getSortedStudents();
 
-  // Arrow indicator for active sort column
   const arrow = (field) => {
     if (sortField !== field) return " ↕";
     return sortOrder === "asc" ? " ↑" : " ↓";
@@ -189,12 +184,13 @@ function App() {
   const totalStudents = students.length;
   const presentCount = students.filter(s => s.isPresent).length;
   const absentCount = totalStudents - presentCount;
- 
+
   const chartData = [
     { label: "Total", value: totalStudents, color: "#6366f1" },
     { label: "Present", value: presentCount, color: "#22c55e" },
     { label: "Absent", value: absentCount, color: "#ef4444" },
   ];
+
   return (
     <div className="container">
       <h1 className="title">Student Attendance System</h1>
@@ -215,43 +211,43 @@ function App() {
         </div>
       </div>
 
-{/* --- Attendance Chart --- */}
-<div className="chart-box">
-  <h2 className="chart-title">Attendance Overview</h2>
-  <ResponsiveContainer width="100%" height={220}>
-    <BarChart data={chartData} barSize={52}>
-      <XAxis
-        dataKey="label"
-        tick={{ fontSize: 13, fill: "#888" }}
-        axisLine={false}
-        tickLine={false}
-      />
-      <YAxis
-        allowDecimals={false}
-        tick={{ fontSize: 12, fill: "#888" }}
-        axisLine={false}
-        tickLine={false}
-        width={24}
-      />
-      <Tooltip
-        cursor={{ fill: "#f3f4f6" }}
-        contentStyle={{
-          borderRadius: "8px",
-          border: "0.5px solid #e5e7eb",
-          fontSize: "13px",
-          boxShadow: "none"
-        }}
-        formatter={(value, name) => [value, name]}
-        labelFormatter={(label) => `${label}`}
-      />
-      <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-        {chartData.map((entry, index) => (
-          <Cell key={index} fill={entry.color} />
-        ))}
-      </Bar>
-    </BarChart>
-  </ResponsiveContainer>
-</div>
+      {/* --- Attendance Chart --- */}
+      <div className="chart-box">
+        <h2 className="chart-title">Attendance Overview</h2>
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={chartData} barSize={52}>
+            <XAxis
+              dataKey="label"
+              tick={{ fontSize: 13, fill: "#888" }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              allowDecimals={false}
+              tick={{ fontSize: 12, fill: "#888" }}
+              axisLine={false}
+              tickLine={false}
+              width={24}
+            />
+            <Tooltip
+              cursor={{ fill: "#f3f4f6" }}
+              contentStyle={{
+                borderRadius: "8px",
+                border: "0.5px solid #e5e7eb",
+                fontSize: "13px",
+                boxShadow: "none"
+              }}
+              formatter={(value, name) => [value, name]}
+              labelFormatter={(label) => `${label}`}
+            />
+            <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+              {chartData.map((entry, index) => (
+                <Cell key={index} fill={entry.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
 
       {/* --- Add Student Form --- */}
       <div className="form-box">
