@@ -1,3 +1,5 @@
+require('dotenv').config(); // ✅ ADD THIS - reads .env file
+console.log("URI:", process.env.MONGO_URI);
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,7 +9,7 @@ app.use(express.json());
 app.use(cors());
 
 // --- 1. Database Connection ---
-mongoose.connect('mongodb://127.0.0.1:27017/attendanceDB')
+mongoose.connect(process.env.MONGO_URI) // ✅ CHANGED - was localhost
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.log("DB Error:", err));
 
@@ -22,7 +24,6 @@ const Student = mongoose.model('Student', StudentSchema);
 
 // --- 3. APIs ---
 
-// GET: Sabhi students laye
 app.get('/api/students', async (req, res) => {
     try {
         const students = await Student.find();
@@ -32,7 +33,6 @@ app.get('/api/students', async (req, res) => {
     }
 });
 
-// POST: Naya student add kare
 app.post('/api/students', async (req, res) => {
     try {
         const newStudent = new Student(req.body);
@@ -43,7 +43,6 @@ app.post('/api/students', async (req, res) => {
     }
 });
 
-// PUT: Attendance toggle kare
 app.put('/api/students/:id/attendance', async (req, res) => {
     try {
         const { isPresent } = req.body;
@@ -58,28 +57,23 @@ app.put('/api/students/:id/attendance', async (req, res) => {
     }
 });
 
-// DELETE: Student delete kare (YEH MISSING THA)
 app.delete('/api/students/:id', async (req, res) => {
     try {
         const id = req.params.id;
-        // Check karein ki ID valid hai ya nahi
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).send("Invalid ID");
         }
-        
         const result = await Student.findByIdAndDelete(id);
-        
         if (!result) {
             return res.status(404).send("Student not found");
         }
-        
         res.json({ message: "Student Deleted Successfully" });
     } catch (err) {
-        console.log(err); // Server console mein error print karega
+        console.log(err);
         res.status(500).json({ error: err.message });
     }
 });
 
 // --- 4. Start Server ---
-const PORT = 5000;
+const PORT = process.env.PORT || 5000; // ✅ CHANGED - reads from .env
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
