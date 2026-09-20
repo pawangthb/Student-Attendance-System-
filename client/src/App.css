@@ -1,5 +1,4 @@
-/* client/src/App.css */
-* {
+/*  {
   box-sizing: border-box;
 }
 
@@ -26,8 +25,7 @@ body {
   margin-bottom: 30px;
   font-size: 2rem;
 }
-
-/* Summary Cards */
+ 
 .summary-box {
   display: flex;
   justify-content: space-between;
@@ -50,8 +48,7 @@ body {
 
 .stat-card.present p { color: #27ae60; }
 .stat-card.absent p { color: #c0392b; }
-
-/* Form Styling */
+ 
 .form-box {
   background: #ecf0f1;
   padding: 20px;
@@ -83,8 +80,7 @@ input {
   transition: background 0.3s;
 }
 .add-btn:hover { background-color: #2980b9; }
-
-/* Table Styling */
+ 
 .student-table {
   width: 100%;
   border-collapse: collapse;
@@ -106,12 +102,10 @@ input {
 
 .row-present { border-left: 5px solid #27ae60; }
 .row-absent { border-left: 5px solid #c0392b; }
-
-/* Badges */
+ 
 .badge-present { background: #d4edda; color: #155724; padding: 5px 10px; border-radius: 15px; font-size: 0.85rem; font-weight: bold; }
 .badge-absent { background: #f8d7da; color: #721c24; padding: 5px 10px; border-radius: 15px; font-size: 0.85rem; font-weight: bold; }
-
-/* Action Buttons */
+ 
 button.toggle-btn {
   background: transparent;
   border: 1px solid #3498db;
@@ -133,4 +127,69 @@ button.delete-btn {
   cursor: pointer;
   font-size: 0.9rem;
 }
-button.delete-btn:hover { background: #e74c3c; color: white; }
+button.delete-btn:hover { background: #e74c3c; color: white; }  */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #f8f9ff; color: #1a1a2e; }
+
+.container { min-height: 100vh; padding: 2rem 1rem; max-width: 900px; margin: 0 auto; }
+
+.title { text-align: center; font-size: 28px; font-weight: 600; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; animation: fadeDown .6s ease; }
+.subtitle { text-align: center; color: #888; font-size: 14px; margin-bottom: 2rem; }
+
+.summary-box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 2rem; animation: fadeUp .6s ease .1s both; }
+.stat-card { background: #fff; border: 0.5px solid #e5e7eb; border-radius: 12px; padding: 1.2rem; text-align: center; transition: transform .2s; }
+.stat-card:hover { transform: translateY(-3px); }
+.stat-card h3 { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+.stat-card p { font-size: 32px; font-weight: 600; }
+.stat-card.present p { color: #22c55e; }
+.stat-card.absent p { color: #ef4444; }
+.stat-card:first-child p { color: #6366f1; }
+
+.form-box { background: #fff; border: 0.5px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; animation: fadeUp .6s ease .2s both; }
+.form-box form { display: flex; gap: 10px; }
+.form-box input { flex: 1; padding: 10px 14px; border: 0.5px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; transition: border .2s; }
+.form-box input:focus { outline: none; border-color: #6366f1; }
+.add-btn { padding: 10px 20px; background: #6366f1; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'Inter', sans-serif; transition: background .2s, transform .1s; white-space: nowrap; }
+.add-btn:hover { background: #4f46e5; }
+.add-btn:active { transform: scale(.97); }
+
+.student-table { width: 100%; border-collapse: collapse; background: #fff; border: 0.5px solid #e5e7eb; border-radius: 12px; overflow: hidden; animation: fadeUp .6s ease .3s both; }
+.student-table thead tr { background: #f9fafb; }
+.student-table th { padding: .75rem 1.25rem; text-align: left; font-size: 12px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: .05em; border-bottom: 0.5px solid #e5e7eb; }
+.student-table td { padding: .9rem 1.25rem; font-size: 14px; border-bottom: 0.5px solid #f3f4f6; }
+.row-present { border-left: 3px solid #22c55e; animation: slideIn .3s ease; }
+.row-absent { border-left: 3px solid #ef4444; animation: slideIn .3s ease; }
+.student-table tr:hover td { background: #f9fafb; }
+
+.badge-present { background: #dcfce7; color: #15803d; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.badge-absent { background: #fee2e2; color: #b91c1c; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+
+.toggle-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: 0.5px solid #e5e7eb; background: #f9fafb; color: #374151; margin-right: 8px; transition: all .15s; font-family: 'Inter', sans-serif; }
+.toggle-btn:hover { background: #6366f1; color: #fff; border-color: #6366f1; }
+.delete-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: 0.5px solid #fecaca; background: #fff0f0; color: #ef4444; transition: all .15s; font-family: 'Inter', sans-serif; }
+.delete-btn:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+.student-table th:hover {
+  background: #ede9fe;
+  color: #6366f1;
+}
+
+.chart-box {
+  background: #fff;
+  border: 0.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  animation: fadeUp .6s ease .15s both;
+}
+
+.chart-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #888;
+  margin-bottom: 1rem;
+}
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }

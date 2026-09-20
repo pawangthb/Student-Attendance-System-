@@ -75,22 +75,20 @@ export default App;*/
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import './App.css';
 
 function App() {
-  // --- State Management ---
   const [students, setStudents] = useState([]);
   const [name, setName] = useState("");
   const [rollNo, setRollNo] = useState("");
+  const [sortField, setSortField] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
 
-  // --- API Integration ---
-  
-  // Load students on start
   useEffect(() => {
     fetchStudents();
   }, []);
 
-  // GET: Fetch all students
   const fetchStudents = async () => {
     try {
       const res = await axios.get('http://localhost:5000/api/students');
@@ -100,22 +98,30 @@ function App() {
     }
   };
 
-  // POST: Add a new student
   const addStudent = async (e) => {
     e.preventDefault();
     if (!name || !rollNo) return alert("Name & Roll No are required");
 
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!nameRegex.test(name)) {
+      return alert("Name should contain letters only");
+    }
+
+    const rollRegex = /^[0-9]+$/;
+    if (!rollRegex.test(rollNo)) {
+      return alert("Roll No should contain numbers only");
+    }
+
     try {
       await axios.post('http://localhost:5000/api/students', { name, rollNo });
-      setName("");   // Clear name input
-      setRollNo(""); // Clear rollno input
-      fetchStudents(); // Refresh list
+      setName("");
+      setRollNo("");
+      fetchStudents();
     } catch (err) {
       alert("Error: Roll No might already exist.");
     }
   };
 
-  // PUT: Toggle Attendance
   const toggleAttendance = async (id, currentStatus) => {
     try {
       await axios.put(`http://localhost:5000/api/students/${id}/attendance`, {
@@ -127,14 +133,11 @@ function App() {
     }
   };
 
-  // DELETE: Remove student
   const deleteStudent = async (id) => {
-    // Confirmation dialog before deleting
     if (window.confirm("Are you sure you want to delete this student?")) {
       try {
-        // Make sure this URL matches your backend route
         await axios.delete(`http://localhost:5000/api/students/${id}`);
-        fetchStudents(); // Refresh the list immediately
+        fetchStudents();
       } catch (err) {
         console.error("Error deleting:", err);
         alert("Failed to delete. Check server console.");
@@ -142,11 +145,56 @@ function App() {
     }
   };
 
-  // --- Summary Calculations ---
-  const totalStudents = students.length;
-  const presentCount = students.filter(student => student.isPresent).length;
-  const absentCount = totalStudents - presentCount;
+  // --- Sorting Logic ---
+  const handleSort = (field) => {
+    if (sortField === field) {
+      // Same field clicked → toggle order
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      // New field clicked → set field, default asc
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  };
 
+  const getSortedStudents = () => {
+    return [...students].sort((a, b) => {
+      let valA = a[sortField];
+      let valB = b[sortField];
+
+      // Roll No is a number — compare as integer
+      if (sortField === "rollNo") {
+        valA = parseInt(valA);
+        valB = parseInt(valB);
+        return sortOrder === "asc" ? valA - valB : valB - valA;
+      }
+
+      // Name — compare as string
+      valA = valA?.toLowerCase();
+      valB = valB?.toLowerCase();
+      if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+  };
+
+  const sortedStudents = getSortedStudents();
+
+  // Arrow indicator for active sort column
+  const arrow = (field) => {
+    if (sortField !== field) return " ↕";
+    return sortOrder === "asc" ? " ↑" : " ↓";
+  };
+
+  const totalStudents = students.length;
+  const presentCount = students.filter(s => s.isPresent).length;
+  const absentCount = totalStudents - presentCount;
+ 
+  const chartData = [
+    { label: "Total", value: totalStudents, color: "#6366f1" },
+    { label: "Present", value: presentCount, color: "#22c55e" },
+    { label: "Absent", value: absentCount, color: "#ef4444" },
+  ];
   return (
     <div className="container">
       <h1 className="title">Student Attendance System</h1>
@@ -167,6 +215,44 @@ function App() {
         </div>
       </div>
 
+{/* --- Attendance Chart --- */}
+<div className="chart-box">
+  <h2 className="chart-title">Attendance Overview</h2>
+  <ResponsiveContainer width="100%" height={220}>
+    <BarChart data={chartData} barSize={52}>
+      <XAxis
+        dataKey="label"
+        tick={{ fontSize: 13, fill: "#888" }}
+        axisLine={false}
+        tickLine={false}
+      />
+      <YAxis
+        allowDecimals={false}
+        tick={{ fontSize: 12, fill: "#888" }}
+        axisLine={false}
+        tickLine={false}
+        width={24}
+      />
+      <Tooltip
+        cursor={{ fill: "#f3f4f6" }}
+        contentStyle={{
+          borderRadius: "8px",
+          border: "0.5px solid #e5e7eb",
+          fontSize: "13px",
+          boxShadow: "none"
+        }}
+        formatter={(value, name) => [value, name]}
+        labelFormatter={(label) => `${label}`}
+      />
+      <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+        {chartData.map((entry, index) => (
+          <Cell key={index} fill={entry.color} />
+        ))}
+      </Bar>
+    </BarChart>
+  </ResponsiveContainer>
+</div>
+
       {/* --- Add Student Form --- */}
       <div className="form-box">
         <form onSubmit={addStudent}>
@@ -174,14 +260,20 @@ function App() {
             type="text"
             placeholder="Name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (/^[a-zA-Z\s]*$/.test(val)) setName(val);
+            }}
             required
           />
           <input
             type="text"
             placeholder="Roll No"
             value={rollNo}
-            onChange={(e) => setRollNo(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (/^[0-9]*$/.test(val)) setRollNo(val);
+            }}
             required
           />
           <button type="submit" className="add-btn">Add Student</button>
@@ -192,14 +284,24 @@ function App() {
       <table className="student-table">
         <thead>
           <tr>
-            <th>Roll No</th>
-            <th>Name</th>
+            <th
+              onClick={() => handleSort("rollNo")}
+              style={{ cursor: "pointer", userSelect: "none" }}
+            >
+              Roll No{arrow("rollNo")}
+            </th>
+            <th
+              onClick={() => handleSort("name")}
+              style={{ cursor: "pointer", userSelect: "none" }}
+            >
+              Name{arrow("name")}
+            </th>
             <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {students.map((student) => (
+          {sortedStudents.map((student) => (
             <tr key={student._id} className={student.isPresent ? "row-present" : "row-absent"}>
               <td>{student.rollNo}</td>
               <td>{student.name}</td>
@@ -209,13 +311,13 @@ function App() {
                 </span>
               </td>
               <td>
-                <button 
+                <button
                   className="toggle-btn"
                   onClick={() => toggleAttendance(student._id, student.isPresent)}
                 >
                   Mark {student.isPresent ? "Absent" : "Present"}
                 </button>
-                <button 
+                <button
                   className="delete-btn"
                   onClick={() => deleteStudent(student._id)}
                 >
@@ -226,7 +328,9 @@ function App() {
           ))}
           {students.length === 0 && (
             <tr>
-              <td colSpan="4" style={{textAlign: 'center'}}>No students found. Add one above!</td>
+              <td colSpan="4" style={{ textAlign: 'center' }}>
+                No students found. Add one above!
+              </td>
             </tr>
           )}
         </tbody>
